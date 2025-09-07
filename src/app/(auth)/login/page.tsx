@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useTransition } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,20 +13,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-
-// ✅ Zod Schema for Iranian phone numbers
-const phoneSchema = z.object({
-  phone: z
-    .string()
-    .regex(/^(09\d{9}|\+989\d{9}|00989\d{9})$/, {
-      message: "Invalid Iranian mobile number format",
-    }),
-});
-
-type PhoneFormValues = z.infer<typeof phoneSchema>;
+import { PhoneFormValues, phoneSchema } from "./_schema/login.schema";
+import { loginAction } from "@/actions/auth/login-action";
 
 export default function LoginPage() {
-  const [loading, setLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const form = useForm<PhoneFormValues>({
     resolver: zodResolver(phoneSchema),
@@ -35,17 +25,11 @@ export default function LoginPage() {
   });
 
   async function onSubmit(values: PhoneFormValues) {
-    try {
-      setLoading(true);
-      const res = await fetch("https://randomuser.me/api/?results=1&nat=us");
-      const data = await res.json();
-      console.log("Response:", data);
-      // Later we’ll handle navigation to dashboard
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
+    startTransition(async () => {
+      const response = await loginAction(values.phone);
+      console.log("Server Action Response:", response);
+      // Later → handle redirect to dashboard
+    });
   }
 
   return (
@@ -69,8 +53,8 @@ export default function LoginPage() {
               )}
             />
 
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Loading..." : "Login"}
+            <Button type="submit" className="w-full" disabled={isPending}>
+              {isPending ? "Loading..." : "Login"}
             </Button>
           </form>
         </Form>
