@@ -15,9 +15,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { PhoneFormValues, phoneSchema } from "./_schema/login.schema";
 import { loginAction } from "@/actions/auth/login-action";
+import { useAuth } from "@/contexts/auth-context";
 
 export default function LoginPage() {
   const [isPending, startTransition] = useTransition();
+  const { login } = useAuth();
 
   const form = useForm<PhoneFormValues>({
     resolver: zodResolver(phoneSchema),
@@ -27,8 +29,17 @@ export default function LoginPage() {
   async function onSubmit(values: PhoneFormValues) {
     startTransition(async () => {
       const response = await loginAction(values.phone);
-      console.log("Server Action Response:", response);
-      // Later → handle redirect to dashboard
+
+      if (response.success && response.data) {
+        const userData = response.data;
+        login(userData);
+      } else {
+        form.setError("phone", {
+          type: "manual",
+          message: response.error || "Login failed, please try again",
+        });
+        console.error("Login failed:", response.error);
+      }
     });
   }
 
