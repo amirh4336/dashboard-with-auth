@@ -64,8 +64,8 @@ export default function LoginPage() {
               )}
             />
 
-            <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending ? "Loading..." : "Login"}
+            <Button type="submit" className="w-full" isLoading={isPending}>
+              Login
             </Button>
           </form>
         </Form>
