@@ -42,9 +42,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       try {
         const savedUser = localStorage.getItem("userData");
         if (savedUser) {
-          const parsedUser = JSON.parse(savedUser);
-          // Validate the user data structure
-          if (parsedUser && parsedUser.id && parsedUser.email) {
+          const parsedUser: User | null = JSON.parse(savedUser);
+          if (parsedUser && parsedUser?.email && parsedUser?.name) {
             setUser(parsedUser);
           } else {
             // Invalid user data, clear storage
