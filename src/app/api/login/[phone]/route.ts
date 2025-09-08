@@ -1,12 +1,12 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
-  req: Request,
-  { params }: { params: { phone: string } }
+  req: NextRequest,
+  { params }: { params: Promise<{ phone: string }> }
 ) {
   try {
     const { phone } = await params;
-    console.log({phone});
+    
     return NextResponse.json({
       phone,
       name: "Amirhossien Heydarpour",
